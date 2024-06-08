@@ -10,7 +10,7 @@ import numpy as np
 import math
 
 from torch.nn.utils import spectral_norm
-from swish import logish
+
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, dropout=0.1, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -112,20 +112,20 @@ class SPEECHENCODER(nn.Module):
             # if i != 0:
             #     layers+=[nn.BatchNorm1d(filt[0])]
             layers+=[
-                    logish(),
+                    nn.LeakyReLU(0.2),
                     nn.Dropout(drp_rate)
                 ]
             prev_filters = filt[0]
         layers+=[
                     nn.Conv1d(prev_filters, 16, 1, stride=1, padding=0, dilation=1),
-                    logish()
+                    nn.LeakyReLU(0.2)
                 ]
 
         self.net = nn.Sequential(*layers)
 
         self.fc_1 = nn.Sequential(
             nn.Linear(560, self.args.speech_dim),
-            logish()
+            nn.LeakyReLU(0.2)
         )
 
     def addContext(self, in_tensor):
@@ -161,7 +161,7 @@ class IMGENCODER(nn.Module):
                     nn.ReflectionPad2d((3-1)//2),
                     nn.Conv2d(prev_filters, self.args.filters[i], 3, 2),
                     # nn.BatchNorm2d(params['FILTERS'][i]),
-                    logish(),
+                    nn.LeakyReLU(0.2),
                     nn.Dropout2d(self.drp_rate),
                 )
             )
@@ -169,7 +169,7 @@ class IMGENCODER(nn.Module):
         
         self.conv_6 = nn.Sequential(
             nn.Conv2d(3 + self.args.filters[-1], self.args.img_dim, kernel_size=4, stride=1),
-            logish()
+            nn.LeakyReLU(0.2)
         )
        
     def forward(self, image): 
@@ -211,9 +211,9 @@ class EMOTIONPROCESSOR(nn.Module):
         
         self.fc_1 = nn.Sequential(
             nn.Linear(6, self.args.emo_dim),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Linear(self.args.emo_dim, self.args.emo_dim),
-            logish()
+            nn.LeakyReLU(0.2)
         )
 
     def forward(self, emotion_cond):
@@ -229,7 +229,7 @@ class DECODER(nn.Module):
         
         self.fc_1 = nn.Sequential(
             nn.Linear(self.args.speech_dim+self.args.img_dim+self.args.noise_dim+self.args.emo_dim, self.args.filters[-1]*4*4),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Dropout(self.drp_rate),
         )
 
@@ -252,7 +252,7 @@ class DECODER(nn.Module):
                             nn.ReflectionPad2d((3-1)//2),
                             nn.Conv2d(3 + 2*self.args.filters[-i-1], self.args.filters[-i-2], 3, 1),
                             # nn.BatchNorm2d(params['FILTERS'][-i-2]),
-                            logish(),
+                            nn.LeakyReLU(0.2),
                             nn.Dropout2d(self.drp_rate),
                         )
                 )
@@ -262,7 +262,7 @@ class DECODER(nn.Module):
             nn.ReflectionPad2d((3-1)//2),
             nn.Conv2d(3 + 2*self.args.filters[0], 32, 3, 1),
             # nn.BatchNorm2d(32),
-            logish()
+            nn.LeakyReLU(0.2)
         )
 
         setattr(self, 'drp_5', nn.Dropout2d(self.drp_rate))
@@ -316,7 +316,7 @@ class GENERATOR(nn.Module):
         self.emotion_rnn = nn.LSTM(self.args.speech_dim, self.args.emo_dim, 2, batch_first=True)
         self.emo_classifier = nn.Sequential(
             nn.Linear(self.args.emo_dim, self.args.emo_dim),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Linear(self.args.emo_dim, 6),
         )
     
@@ -367,7 +367,7 @@ class DISCPAIRED(nn.Module):
                 'conv_'+str(i+1), 
                 nn.Sequential(
                     nn.Conv2d(prev_filters, self.args.filters[i], 3, 2),
-                    logish(),
+                    nn.LeakyReLU(0.2),
                     nn.Dropout2d(self.drp_rate),
                 )
             )
@@ -375,7 +375,7 @@ class DISCPAIRED(nn.Module):
         
         self.video_fc = nn.Sequential(
             nn.Linear(512*3*3, 512), 
-            logish()
+            nn.LeakyReLU(0.2)
         )
         
         self.rnn_1 = nn.LSTM(self.args.img_dim, 256, 1, bidirectional=True, batch_first=True)
@@ -384,7 +384,7 @@ class DISCPAIRED(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Linear(1024, 1024),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Dropout(self.drp_rate),
             nn.Linear(1024, 1)
         )
@@ -438,14 +438,14 @@ class DISCFRAME(nn.Module):
                     'conv_'+str(i+1), 
                     nn.Sequential(
                     nn.Conv2d(prev_filters, num_filters, kernel_size=filter_size, stride=stride, padding=filter_size//2),
-                    logish()
+                    nn.LeakyReLU(0.3)
                 )
             )
             prev_filters = num_filters
 
         self.out = nn.Sequential(
             nn.Linear(8192, 2048),
-            logish(),
+            nn.LeakyReLU(0.3),
             nn.Linear(2048, 1)
         )
 
@@ -504,7 +504,7 @@ class DISCVIDEO(nn.Module):
                         nn.Sequential(
                             nn.ReflectionPad2d((3-1)//2),
                             nn.Conv2d(prev_filters, self.filters[i], 3, 2),
-                            logish(),
+                            nn.LeakyReLU(0.2),
                         )
                 )
             else:
@@ -513,27 +513,27 @@ class DISCVIDEO(nn.Module):
                         nn.Sequential(
                             nn.ReflectionPad2d((3-1)//2),
                             nn.Conv2d(prev_filters, self.filters[i], 3, 2),
-                            logish(),
+                            nn.LeakyReLU(0.2),
                         )
                 )
             prev_filters = self.filters[i]
         
         self.video_fc = nn.Sequential(
             nn.Linear(512*4*4, 512), 
-            logish()
+            nn.LeakyReLU(0.2)
         )
         
         self.rnn_1 = nn.LSTM(self.args.img_dim, 512, 2, bidirectional=False, batch_first=True)
 
         self.classifier = nn.Sequential(
             nn.Linear(512, 512),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Linear(512, 1)
         )
 
         self.emo_classifier = nn.Sequential(
             nn.Linear(512, 512),
-            logish(),
+            nn.LeakyReLU(0.2),
             nn.Linear(512, 6),
         )
 
@@ -598,14 +598,14 @@ class DISCEMO(nn.Module):
                     'conv_'+str(i+1), 
                     nn.Sequential(
                     nn.Conv2d(prev_filters, num_filters, kernel_size=filter_size, stride=stride, padding=filter_size//2),
-                    logish()
+                    nn.LeakyReLU(0.3)
                 )
             )
             prev_filters = num_filters
 
         self.projector = nn.Sequential(
             nn.Linear(8192, 2048),
-            logish(),
+            nn.LeakyReLU(0.3),
             nn.Linear(2048, 512)
         )
 
