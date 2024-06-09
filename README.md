@@ -1,6 +1,5 @@
-# Speech Driven Talking Face Generation from a Single Image and an Emotion Condition
+# Synthesis of Talking Face with Emotion given an image and speech
 
-[[Paper link](https://arxiv.org/pdf/2008.03592.pdf)]
 
 Each row shows 6 videos created using the same image and speech but with different emotion input. Columns represent  `anger`, `disgust`, `fear`, `happiness`, `neutral`, and `sadness`, respectively.
 
