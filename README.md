@@ -1,5 +1,7 @@
 # Synthesis of Talking Face with Emotion given an image and speech
 
+In this project i follow the below github repository
+
 
 Each row shows 6 videos created using the same image and speech but with different emotion input. Columns represent  `anger`, `disgust`, `fear`, `happiness`, `neutral`, and `sadness`, respectively.
 
