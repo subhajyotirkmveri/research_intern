@@ -64,7 +64,7 @@ By default, the Tensorboard log file is written to the output path. You can chec
 
 ## Inference
 
-Download our pretrained model (optional): Please put pre-trained [model](https://drive.google.com/file/d/1evtS1N828JsAAzIS05NoJ2k-lKQFZtsX/view?usp=sharing) in the `model` folder.
+Download the pretrained model (optional): Please put pre-trained [model](https://drive.google.com/file/d/1evtS1N828JsAAzIS05NoJ2k-lKQFZtsX/view?usp=sharing) in the `model` folder.
 
 Inference from an image and speech file:
 
@@ -72,27 +72,5 @@ Inference from an image and speech file:
 python generate.py -im ./data/image_samples/img01.png -is ./data/speech_samples/speech01.wav -m ./model/ -o ./results/
 ```
 
-Inference from processed dataset (h5py files):
 
-```
-python generate_all_emotions.py -ih /path/to/h5py/folder/ -m ./model/ -o ./results/
-```
 
-Inference from processed dataset (h5py files) - Mismatched emotions:
-
-```
-python generate_mismatched_emotions.py -ih /path/to/h5py/folder/ -m ./model/ -o ./results/
-```
-
-## Acknowledgment
-We thank the authors of the following [repo](https://github.com/kamo-naoyuki/pytorch_convolutional_rnn).
-
-## Citation
-```
-@ARTICLE{seeskimezemotface,
-    title={Speech Driven Talking Face Generation from a Single Image and an Emotion Condition},
-    author={Eskimez, Sefik Emre and Zhang, You and Duan, Zhiyao},
-    journal={arXiv preprint arXiv:2008.03592},
-    year={2020}
-}
-```
