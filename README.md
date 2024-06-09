@@ -37,7 +37,10 @@ python .\data_prep\convertFPS.py -i \raw_video_folder -o \output_folder
 ```
 python .\data_prep\prepare_data.py -i \25_fps_video_folder\ -o \output_folder --mode 1 --nw 1
 ```
-
+## Split the sample into training and validation sets.
+```
+python script.py -w ./hdf5_folder -t ./train_hdf5_folder/ -v ./val_hdf5_folder/
+```
 ## Train
 First pre-train the emotion discriminator:
 
